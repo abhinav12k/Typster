@@ -32,7 +32,7 @@ class UserShipData : ShipData() {
     override var visualAngle: Double = 0.0
 
     override fun fireArm(shipData: ShipData): GameObject {
-        return BulletData(8.0, shipData.visualAngle, shipData.position)
+        return BulletData(20.0, shipData.visualAngle, shipData.position)
     }
 }
 

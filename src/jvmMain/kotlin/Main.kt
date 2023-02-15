@@ -1,9 +1,6 @@
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.text.isTypedEvent
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
@@ -13,23 +10,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.*
-import androidx.compose.ui.input.pointer.pointerMoveFilter
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.DpOffset
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.application
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import org.jetbrains.skia.impl.Log
-import java.awt.Dimension
-import java.util.UUID
 
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 @Preview
 fun App() {
@@ -52,11 +40,11 @@ fun App() {
         .onKeyEvent {
             if (game.gameState == GameState.STOPPED || game.gameState == GameState.PAUSED) {
                 false
-            } else if (it.key == Key.Escape && it.type == KeyEventType.KeyDown) {
+            } else if (isGamePauseTriggered(it)) {
                 game.pauseGame()
                 true
-            } else if (map.contains(it.key) && it.type == KeyEventType.KeyDown) {
-                game.onKeyboardInput(Pair(map.getValue(it.key), UUID.randomUUID()))
+            } else if (isValidKeyboardInput(it)) {
+                game.onKeyboardInput(getLetterFromKeyboardInput(it))
                 true
             } else false
         }
@@ -126,6 +114,14 @@ fun main() = application {
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
+private fun isGamePauseTriggered(keyEvent: KeyEvent) = keyEvent.key == Key.Escape && keyEvent.type == KeyEventType.KeyDown
+
+private fun isValidKeyboardInput(keyEvent: KeyEvent): Boolean {
+    return map.contains(keyEvent.key) && keyEvent.type == KeyEventType.KeyDown
+}
+
+private fun getLetterFromKeyboardInput(keyEvent: KeyEvent): String = map.getValue(keyEvent.key)
 
 @OptIn(ExperimentalComposeUiApi::class)
 private val map = mapOf(

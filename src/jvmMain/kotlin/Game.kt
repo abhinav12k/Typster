@@ -39,7 +39,6 @@ class Game {
     private var currentTargetWord: String? = null
     private var currentTargetEnemyObject: GameObject? = null
     private var idxUnderValidation = -1
-    private var prevTypedPair: Pair<String, UUID>? = null
 
     private var currentWordIdx = 0
 
@@ -58,7 +57,6 @@ class Game {
         idxUnderValidation = 0
         currentTargetEnemyObject = null
         currentTargetWord = null
-        prevTypedPair = null
 
         userShip.position = Vector2(width.value / 2.0, height.value - 40.0)
         userShip.movementVector = Vector2.ZERO
@@ -89,19 +87,20 @@ class Game {
 
         userShip.visualAngle = shipToTargetWord.angle()
 
-        for (gameObject in gameObjects) {
-            gameObject.update(floatDelta, this)
-        }
-
         val enemyBullets = gameObjects.filterIsInstance<EnemyBulletData>()
 
         val bullets = gameObjects.filterIsInstance<BulletData>()
 
         enemyBullets.forEach { enemyBulletData ->
-            val nearestBullet = bullets.firstOrNull { it.overlapsWith(enemyBulletData) }
-            gameObjects.remove(nearestBullet as? GameObject)
+            bullets.firstOrNull { it.overlapsWith(enemyBulletData) }?.let {
+                //todo: introduce drag in enemy bullets
+                gameObjects.remove(it)
+            }
         }
 
+        for (gameObject in gameObjects) {
+            gameObject.update(floatDelta, this)
+        }
 
         if (enemyBullets.any { enemyBullet -> userShip.overlapsWith(enemyBullet) }) {
             endGame()
@@ -112,24 +111,24 @@ class Game {
         }
     }
 
-    fun onKeyboardInput(currentLetterPair: Pair<String, UUID>) {
+    fun onKeyboardInput(currentTypedLetter: String) {
         val enemyBullets = gameObjects.filterIsInstance<EnemyBulletData>()
 
-        if (currentLetterPair.first.isNotEmpty() && prevTypedPair?.second != currentLetterPair.second) {
+        if (currentTypedLetter.isNotEmpty()) {
             currentTargetEnemyObject = currentTargetEnemyObject ?: enemyBullets.firstOrNull {
-                it.word.first().lowercase() == currentLetterPair.first.lowercase()
+                it.word.first().lowercase() == currentTypedLetter.lowercase()
             }?.apply {
                 currentTargetWord = word
                 isUnderAttack = true
+                targetLocation = DpOffset(
+                    this.position.x.dp,
+                    this.position.y.dp
+                )
             }
             if (!currentTargetWord.isNullOrEmpty()) {
-                if (currentTargetWord?.get(idxUnderValidation)
-                        ?.lowercase() == currentLetterPair.first.lowercase()
-                ) {
+                if (currentTargetWord?.get(idxUnderValidation)?.lowercase() == currentTypedLetter.lowercase()) {
                     idxUnderValidation = idxUnderValidation.inc()
-                    prevTypedPair = currentLetterPair
 
-                    targetLocation = DpOffset((currentTargetEnemyObject?.position?.x ?: 0.0).dp, (currentTargetEnemyObject?.position?.y ?: 0.0).dp)
                     userShip.fire(this)
 
                     currentTargetWord?.substring(idxUnderValidation)?.let {
@@ -144,13 +143,12 @@ class Game {
                         idxUnderValidation = 0
                         currentTargetEnemyObject = null
                         currentTargetWord = null
-                        prevTypedPair = null
                     }
                 }
             }
         }
 
-        if(enemyBullets.size <= 2) {
+        if (enemyBullets.size <= 2) {
             addMoreEnemyBullets(enemyBulletSpeed)
             enemyBulletSpeed += 0.1
         }
@@ -158,7 +156,7 @@ class Game {
 
     private var enemyBulletSpeed = 2.0
     private fun addMoreEnemyBullets(speedD: Double) {
-        if(currentWord == null) return
+        if (currentWord == null) return
         repeat(wordsPerRound) {
             gameObjects.add(EnemyBulletData().apply {
                 position = Vector2(Random.nextDouble() * width.value, Random.nextDouble() * 80.0)
@@ -178,6 +176,7 @@ class Game {
         gameState = GameState.PAUSED
         gameStatus = "Game Paused :("
     }
+
     private fun endGame() {
         gameObjects.remove(userShip)
         gameState = GameState.STOPPED
