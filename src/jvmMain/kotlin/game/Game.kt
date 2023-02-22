@@ -1,41 +1,28 @@
-import androidx.compose.runtime.*
+package game
+
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import org.openrndr.math.Vector2
-import java.util.UUID
-import kotlin.math.atan2
+import utils.*
 import kotlin.random.Random
-
-enum class GameState {
-    STOPPED, RUNNING, PAUSED
-}
-
-fun Vector2.angle(): Double {
-    val radian = atan2(y = this.y, x = this.x)
-    return (radian / Math.PI) * 180
-}
-
-
-val windowWidth = 700.dp
-val windowHeight = 900.dp
 
 class Game {
     private var prevTime = 0L   // storing the last time game was updated
-    var userShip = UserShipData()
+    private var userShip = UserShipData()
 
-    var targetLocation by mutableStateOf(DpOffset.Zero)
+    private var targetLocation by mutableStateOf(DpOffset.Zero)
+
+    private val gameConfig = GameConfig()
 
     var gameObjects = mutableStateListOf<GameObject>()
-    var gameState by mutableStateOf(GameState.RUNNING)
-    var gameStatus by mutableStateOf("Let's begin!")
+    var gameState by mutableStateOf(GameState.INITIALIZED)
+        private set
+    var gameStatus by mutableStateOf(GAME_STATUS_STARTED)
 
-    private var wordsPerRound = 3
-    private val wordsList = textArray
     private var currentTargetWord: String? = null
     private var currentTargetEnemyObject: GameObject? = null
     private var idxUnderValidation = -1
@@ -44,35 +31,82 @@ class Game {
 
     private val currentWord: String?
         get() {
-            if (currentWordIdx == wordsList.size) return null
-            val tmp = wordsList[currentWordIdx]
+            if (currentWordIdx == gameConfig.wordList.size) return null
+            val tmp = gameConfig.wordList[currentWordIdx]
             currentWordIdx = currentWordIdx.inc()
             return tmp
         }
 
     fun startGame() {
+        initGameVariables()
+
+        setupPlayerShip()
+
+        addEnemyBullets(gameConfig.enemyBulletSpeed)
+
+        updateGameState(GameState.STARTED)
+    }
+
+    private fun initGameVariables() {
+        gameConfig.resetGameConfig()
+
         gameObjects.clear()
         currentWordIdx = 0
 
         idxUnderValidation = 0
         currentTargetEnemyObject = null
         currentTargetWord = null
+    }
 
+    private fun setupPlayerShip() {
         userShip.position = Vector2(width.value / 2.0, height.value - 40.0)
         userShip.movementVector = Vector2.ZERO
         gameObjects.add(userShip)
+    }
 
-        repeat(wordsPerRound) {
-            gameObjects.add(EnemyBulletData().apply {
-                position = Vector2(Random.nextDouble() * width.value, Random.nextDouble() * 80.0)
-                angle = (userShip.position - position).angle()
-                speed = 2.0
-                word = currentWord as String
-            })
+    private fun addEnemyBullets(speedD: Double) {
+        if (currentWord == null) return
+        repeat(gameConfig.getWordsPerLevel()) {
+            currentWord?.let {
+                gameObjects.add(EnemyBulletData().apply {
+                    position = Vector2(Random.nextDouble() * width.value, Random.nextDouble() * 80.0)
+                    angle = (userShip.position - position).angle()
+                    speed = speedD
+                    word = it
+                })
+            } ?: return@repeat
         }
+    }
 
-        gameState = GameState.RUNNING
-        gameStatus = "Good luck!"
+    private fun updateGameState(gameStateArg: GameState) {
+        when (gameStateArg) {
+            GameState.STARTED -> {
+                gameState = GameState.STARTED
+                gameStatus = GAME_STATUS_RESUMED
+            }
+
+            GameState.PAUSED -> {
+                gameState = GameState.PAUSED
+                gameStatus = GAME_STATUS_PAUSED
+            }
+
+            GameState.RESUMED -> {
+                gameState = GameState.RESUMED
+                gameStatus = GAME_STATUS_RESUMED
+            }
+
+            GameState.LOST -> {
+                gameState = GameState.STOPPED
+                gameStatus = GAME_STATUS_LOST
+            }
+
+            GameState.WON -> {
+                gameState = GameState.STOPPED
+                gameStatus = GAME_STATUS_WON
+            }
+
+            GameState.STOPPED, GameState.INITIALIZED -> {}
+        }
     }
 
     fun update(time: Long) {
@@ -80,15 +114,11 @@ class Game {
         val floatDelta = (delta / 1e8).toFloat() //because time is in nano seconds
         prevTime = time
 
-        if (gameState == GameState.STOPPED || gameState == GameState.PAUSED) return
+        if(!isGameInRunningState()) return
 
-        val currentTargetWordVector = Vector2(targetLocation.x.value.toDouble(), targetLocation.y.value.toDouble())
-        val shipToTargetWord = currentTargetWordVector - userShip.position
-
-        userShip.visualAngle = shipToTargetWord.angle()
+        userShip.visualAngle = getTargetAngle()
 
         val enemyBullets = gameObjects.filterIsInstance<EnemyBulletData>()
-
         val bullets = gameObjects.filterIsInstance<BulletData>()
 
         enemyBullets.forEach { enemyBulletData ->
@@ -109,6 +139,16 @@ class Game {
         if (enemyBullets.isEmpty()) {
             winGame()
         }
+    }
+
+    private fun isGameInRunningState(): Boolean {
+        return gameState == GameState.STARTED || gameState == GameState.RESUMED
+    }
+
+    private fun getTargetAngle(): Double {
+        val currentTargetWordVector = Vector2(targetLocation.x.value.toDouble(), targetLocation.y.value.toDouble())
+        val shipToTargetWord = currentTargetWordVector - userShip.position
+        return shipToTargetWord.angle()
     }
 
     fun onKeyboardInput(currentTypedLetter: String) {
@@ -149,43 +189,26 @@ class Game {
         }
 
         if (enemyBullets.size <= 2) {
-            addMoreEnemyBullets(enemyBulletSpeed)
-            enemyBulletSpeed += 0.1
-        }
-    }
-
-    private var enemyBulletSpeed = 2.0
-    private fun addMoreEnemyBullets(speedD: Double) {
-        if (currentWord == null) return
-        repeat(wordsPerRound) {
-            gameObjects.add(EnemyBulletData().apply {
-                position = Vector2(Random.nextDouble() * width.value, Random.nextDouble() * 80.0)
-                angle = (userShip.position - position).angle()
-                speed = speedD
-                word = currentWord as String
-            })
+            addEnemyBullets(gameConfig.enemyBulletSpeed)
+            gameConfig.increaseEnemyBulletSpeed()
         }
     }
 
     fun resumeGame() {
-        gameState = GameState.RUNNING
-        gameStatus = "Good luck!"
+        updateGameState(GameState.RESUMED)
     }
 
     fun pauseGame() {
-        gameState = GameState.PAUSED
-        gameStatus = "Game Paused :("
+        updateGameState(GameState.PAUSED)
     }
 
     private fun endGame() {
         gameObjects.remove(userShip)
-        gameState = GameState.STOPPED
-        gameStatus = "Better luck next time!"
+        updateGameState(GameState.LOST)
     }
 
     private fun winGame() {
-        gameState = GameState.STOPPED
-        gameStatus = "Congratulations!"
+        updateGameState(GameState.WON)
     }
 
     var width by mutableStateOf(0.dp)

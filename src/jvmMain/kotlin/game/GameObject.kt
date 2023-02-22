@@ -1,10 +1,11 @@
+package game
+
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import org.openrndr.math.Vector2
 import org.openrndr.math.mod
+import utils.angle
 
 abstract class ShipData : GameObject() {
     override val size: Double = 40.0
@@ -74,9 +75,6 @@ sealed class GameObject(speed: Double = 0.0, angle: Double = 0.0, position: Vect
 
     fun overlapsWith(other: GameObject): Boolean {
         // Overlap means the center of the game objects are closer together than the sum of their radii
-        return this.position.distanceTo(other.position) < (this.size / 2 + other.size / 2)
+        return this.position.distanceTo(other.position) < ((this.size + other.size) / 2)
     }
 }
-
-val GameObject.xOffset: Dp get() = position.x.dp - (size.dp / 2)
-val GameObject.yOffset: Dp get() = position.y.dp - (size.dp / 2)

@@ -1,3 +1,6 @@
+package ui
+
+import game.EnemyBulletData
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -9,6 +12,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import utils.xOffset
+import utils.yOffset
 
 @Composable
 fun EnemyBullet(enemyBulletData: EnemyBulletData) {

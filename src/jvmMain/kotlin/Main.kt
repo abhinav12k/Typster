@@ -2,6 +2,7 @@ import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -12,11 +13,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.loadSvgPainter
+import androidx.compose.ui.res.useResource
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Window
-import androidx.compose.ui.window.WindowState
-import androidx.compose.ui.window.application
-
+import androidx.compose.ui.window.*
+import game.*
+import kotlinx.coroutines.launch
+import ui.Bullet
+import ui.EnemyBullet
+import ui.Ship
+import utils.*
 
 @Composable
 @Preview
@@ -55,15 +62,17 @@ fun App() {
         ) {
             Button({
                 when (game.gameState) {
+                    GameState.INITIALIZED -> game.startGame()
+                    GameState.STARTED, GameState.RESUMED -> game.pauseGame()
                     GameState.PAUSED -> game.resumeGame()
-                    GameState.RUNNING -> game.pauseGame()
                     else -> game.startGame()
                 }
             }) {
                 Text(
                     text = when (game.gameState) {
+                        GameState.INITIALIZED -> "Play"
                         GameState.PAUSED -> "Resume"
-                        GameState.RUNNING -> "Pause"
+                        GameState.STARTED, GameState.RESUMED, -> "Pause"
                         else -> "Play"
                     }
                 )
@@ -105,12 +114,72 @@ fun App() {
 }
 
 fun main() = application {
-    Window(
-        state = WindowState(width = windowWidth, height = windowHeight),
-        onCloseRequest = ::exitApplication,
-        title = "Typing Game"
-    ) {
-        App()
+
+    val appIcon = useResource("drawable/typing.svg") {
+        loadSvgPainter(inputStream = it, density = LocalDensity.current)
+    }
+    var windowVisible by remember { mutableStateOf(true) }
+    val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(Unit) {
+        AudioPlayer.play(BACKGROUND_MUSIC_PATH)
+        while (AudioPlayer.isMusicCompleted()) {
+            AudioPlayer.replay()
+        }
+    }
+
+    MaterialTheme {
+        val trayState = rememberTrayState()
+        Tray(
+            state = trayState,
+            icon = appIcon,
+            onAction = { windowVisible = true },
+            menu = {
+                Item(
+                    text = "Stop music",
+                    onClick = { AudioPlayer.stop() }
+                )
+                Item(
+                    text = "Replay music",
+                    onClick = {
+                        coroutineScope.launch {
+                            AudioPlayer.replay()
+                        }
+                    }
+                )
+                Item(
+                    text = "Hide game",
+                    onClick = { windowVisible = false }
+                )
+                Item(
+                    text = "Show game",
+                    onClick = { windowVisible = true }
+                )
+                Item(
+                    text = "Close",
+                    onClick = {
+                        AudioPlayer.stop()
+                        exitApplication()
+                    }
+                )
+            }
+        )
+
+        val windowState = rememberWindowState(
+            position = WindowPosition.Aligned(Alignment.Center),
+            size = DpSize(windowWidth, windowHeight)
+        )
+
+        Window(
+            state = windowState,
+            onCloseRequest = {
+                windowVisible = false
+            },
+            title = APP_NAME,
+            visible = windowVisible
+        ) {
+            App()
+        }
     }
 }
 
@@ -157,5 +226,5 @@ private val map = mapOf(
     Key.Slash to "/",
     Key.Semicolon to ";",
     Key.Backslash to "\\",
-    Key.Apostrophe to "\"",
+    Key.Apostrophe to "'",
 )

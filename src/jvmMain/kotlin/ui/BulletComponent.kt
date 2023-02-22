@@ -1,3 +1,5 @@
+package ui
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.offset
@@ -9,6 +11,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import game.BulletData
+import utils.xOffset
+import utils.yOffset
 
 @Composable
 fun Bullet(bulletData: BulletData) {
