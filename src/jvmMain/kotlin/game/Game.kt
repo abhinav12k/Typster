@@ -102,11 +102,13 @@ class Game {
             GameState.LOST -> {
                 gameState = GameState.STOPPED
                 gameStatus = GAME_STATUS_LOST
+                isGameMenuVisible = true
             }
 
             GameState.WON -> {
                 gameState = GameState.STOPPED
                 gameStatus = GAME_STATUS_WON
+                isGameMenuVisible = true
             }
 
             GameState.STOPPED, GameState.INITIALIZED -> {}

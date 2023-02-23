@@ -30,28 +30,41 @@ fun BoxScope.GameMenu(game: Game) {
         modifier = Modifier.align(Alignment.Center),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        MenuOption(
-            optionLabel = when (game.gameState) {
-                GameState.INITIALIZED -> "Play"
-                GameState.PAUSED -> "Resume"
-                GameState.STARTED, GameState.RESUMED -> "Pause"
-                else -> "Play"
-            },
-            onClick = {
-                when (game.gameState) {
-                    GameState.INITIALIZED -> {
-                        game.startGame()
-                        coroutineScope.launch {
-                            AudioPlayer.play()
+        // show resume / pause / play option only when game is played
+        if (game.gameState != GameState.STOPPED) {
+            MenuOption(
+                optionLabel = when (game.gameState) {
+                    GameState.INITIALIZED -> "Play"
+                    GameState.PAUSED -> "Resume"
+                    GameState.STARTED, GameState.RESUMED -> "Pause"
+                    else -> "Play"
+                },
+                onClick = {
+                    when (game.gameState) {
+                        GameState.INITIALIZED -> {
+                            game.startGame()
+                            coroutineScope.launch {
+                                AudioPlayer.play()
+                            }
                         }
-                    }
 
-                    GameState.STARTED, GameState.RESUMED -> game.pauseGame()
-                    GameState.PAUSED -> game.resumeGame()
-                    else -> game.startGame()
+                        GameState.STARTED, GameState.RESUMED -> game.pauseGame()
+                        GameState.PAUSED -> game.resumeGame()
+                        else -> game.startGame()
+                    }
                 }
-            }
-        )
+            )
+        }
+
+        // only show restart option when the game is at least in started state
+        if (game.gameState != GameState.INITIALIZED) {
+            MenuOption(
+                optionLabel = "Restart",
+                onClick = {
+                    game.startGame()
+                }
+            )
+        }
 
         MenuOption(
             optionLabel = "Stop Background Music",
@@ -83,10 +96,6 @@ fun BoxScope.GameMenu(game: Game) {
                 exitProcess(0)
             }
         )
-
-
-        /******* GAME STATUS ******/
-
 
         /******* GAME STATUS ******/
         Spacer(

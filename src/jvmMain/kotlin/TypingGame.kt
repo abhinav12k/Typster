@@ -127,7 +127,7 @@ fun main() = application {
             onKeyEvent = {
                 if (game.gameState == GameState.STOPPED || game.gameState == GameState.PAUSED) {
                     false
-                } else if (isGamePauseTriggered(it)) {
+                } else if (game.gameState != GameState.INITIALIZED && isGamePauseTriggered(it)) {
                     game.pauseGame()
                     true
                 } else if (isValidKeyboardInput(it)) {
