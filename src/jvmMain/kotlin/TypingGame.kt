@@ -1,17 +1,18 @@
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.input.key.*
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.loadSvgPainter
 import androidx.compose.ui.res.useResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.window.*
 import game.*
@@ -75,6 +76,9 @@ fun main() = application {
     val game = remember { Game() }
     val coroutineScope = rememberCoroutineScope()
 
+//    var isResizable by remember { mutableStateOf(true) }
+//    isResizable = game.gameState == GameState.INITIALIZED
+
     MaterialTheme {
         val trayState = rememberTrayState()
         Tray(
@@ -90,7 +94,7 @@ fun main() = application {
                     text = "Replay music",
                     onClick = {
                         coroutineScope.launch {
-                            AudioPlayer.replay()
+                            AudioPlayer.play()
                         }
                     }
                 )
@@ -127,63 +131,17 @@ fun main() = application {
             onKeyEvent = {
                 if (game.gameState == GameState.STOPPED || game.gameState == GameState.PAUSED) {
                     false
-                } else if (game.gameState != GameState.INITIALIZED && isGamePauseTriggered(it)) {
+                } else if (game.gameState != GameState.INITIALIZED && KeyboardHelper.isGamePauseTriggered(it)) {
                     game.pauseGame()
                     true
-                } else if (isValidKeyboardInput(it)) {
-                    game.onKeyboardInput(getLetterFromKeyboardInput(it))
+                } else if (KeyboardHelper.isValidKeyboardInput(it)) {
+                    game.onKeyboardInput(KeyboardHelper.getLetterFromKeyboardInput(it))
                     true
                 } else false
-            }
+            },
+            resizable = true //todo: find fix for disabling full screen mode
         ) {
             App(game)
         }
     }
 }
-
-@OptIn(ExperimentalComposeUiApi::class)
-private fun isGamePauseTriggered(keyEvent: KeyEvent) =
-    keyEvent.key == Key.Escape && keyEvent.type == KeyEventType.KeyDown
-
-private fun isValidKeyboardInput(keyEvent: KeyEvent): Boolean {
-    return map.contains(keyEvent.key) && keyEvent.type == KeyEventType.KeyDown
-}
-
-private fun getLetterFromKeyboardInput(keyEvent: KeyEvent): String = map.getValue(keyEvent.key)
-
-@OptIn(ExperimentalComposeUiApi::class)
-private val map = mapOf(
-    Key.A to "A",
-    Key.B to "B",
-    Key.C to "C",
-    Key.D to "D",
-    Key.E to "E",
-    Key.F to "F",
-    Key.G to "G",
-    Key.H to "H",
-    Key.I to "I",
-    Key.J to "J",
-    Key.K to "K",
-    Key.L to "L",
-    Key.M to "M",
-    Key.N to "N",
-    Key.O to "O",
-    Key.P to "P",
-    Key.Q to "Q",
-    Key.R to "R",
-    Key.S to "S",
-    Key.T to "T",
-    Key.U to "U",
-    Key.V to "V",
-    Key.W to "W",
-    Key.X to "X",
-    Key.Y to "Y",
-    Key.Z to "Z",
-    Key.Comma to ",",
-    Key.Period to ".",
-    Key.Grave to "`",
-    Key.Slash to "/",
-    Key.Semicolon to ";",
-    Key.Backslash to "\\",
-    Key.Apostrophe to "'",
-)

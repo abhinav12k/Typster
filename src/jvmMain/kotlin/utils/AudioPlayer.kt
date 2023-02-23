@@ -8,10 +8,11 @@ import java.io.FileInputStream
 object AudioPlayer {
 
     private var audioPlayer: Player? = null
-    private var localFilePath: String? = null
+    private var localFilePath: String = BACKGROUND_MUSIC_PATH
     suspend fun play(filePath: String = BACKGROUND_MUSIC_PATH) {
         localFilePath = filePath
         withContext(Dispatchers.IO) {
+            stop()
             val inputStream = FileInputStream(filePath)
             audioPlayer = Player(inputStream)
             audioPlayer?.play()
@@ -22,12 +23,5 @@ object AudioPlayer {
         audioPlayer?.close()
         audioPlayer = null
     }
-
-    suspend fun replay() {
-        stop()
-        localFilePath?.let { play(it) }
-    }
-
-    fun isMusicCompleted() = audioPlayer?.isComplete == true
 
 }

@@ -3,18 +3,25 @@ package ui.menu
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.Button
 import androidx.compose.material.Card
 import androidx.compose.material.Text
+import androidx.compose.material.TextField
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import game.Game
 import game.GameState
 import kotlinx.coroutines.launch
@@ -26,6 +33,8 @@ import kotlin.system.exitProcess
 @Composable
 fun BoxScope.GameMenu(game: Game) {
     val coroutineScope = rememberCoroutineScope()
+    var isDialogOpen by remember { mutableStateOf(false) }
+
     Column(
         modifier = Modifier.align(Alignment.Center),
         verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -77,7 +86,7 @@ fun BoxScope.GameMenu(game: Game) {
             optionLabel = "Replay Background Music",
             onClick = {
                 coroutineScope.launch {
-                    AudioPlayer.replay()
+                    AudioPlayer.play()
                 }
             }
         )
@@ -85,8 +94,7 @@ fun BoxScope.GameMenu(game: Game) {
         MenuOption(
             optionLabel = "Load your text",
             onClick = {
-                //todo: open up a new text window here to load text into memory
-
+                isDialogOpen = true
             }
         )
 
@@ -112,6 +120,18 @@ fun BoxScope.GameMenu(game: Game) {
         )
     }
 
+    if (isDialogOpen) {
+        InputTextDialog(onClose = {
+            isDialogOpen = false
+        }) {
+            game.updateWordList(it)
+            game.startGame()
+            coroutineScope.launch {
+                AudioPlayer.play()
+            }
+        }
+    }
+
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -134,5 +154,42 @@ private fun MenuOption(optionLabel: String, onClick: () -> Unit) {
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center
         )
+    }
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+private fun InputTextDialog(onClose: () -> Unit, playBtnClicked: (enteredText: String) -> Unit) {
+    Dialog(
+        title = "Enter the text you wanna play with",
+        onCloseRequest = { onClose.invoke() },
+        onPreviewKeyEvent = {
+            if (it.key == Key.Escape && it.type == KeyEventType.KeyDown) {
+                onClose.invoke()
+                true
+            } else {
+                false
+            }
+        }
+    ) {
+        var text by remember { mutableStateOf("") }
+
+        Column(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            TextField(
+                value = text,
+                onValueChange = { text = it },
+                modifier = Modifier.fillMaxWidth().heightIn(200.dp)
+            )
+            Button(
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+                onClick = { playBtnClicked.invoke(text) },
+            ) {
+                Text("Play!")
+            }
+        }
+
+
     }
 }

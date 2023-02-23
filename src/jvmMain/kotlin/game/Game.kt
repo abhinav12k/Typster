@@ -38,6 +38,10 @@ class Game {
             return tmp
         }
 
+    fun updateWordList(enteredText: String) {
+        gameConfig.updateWordList(enteredText)
+    }
+
     fun startGame() {
         initGameVariables()
 
@@ -66,7 +70,6 @@ class Game {
     }
 
     private fun addEnemyBullets(speedD: Double) {
-        if (currentWord == null) return
         repeat(gameConfig.getWordsPerLevel()) {
             currentWord?.let {
                 gameObjects.add(EnemyBulletData().apply {

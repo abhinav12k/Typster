@@ -6,7 +6,7 @@ import utils.DEFAULT_WORDS_PER_LEVEL
 
 class GameConfig {
     private var wordsPerLevel = DEFAULT_WORDS_PER_LEVEL
-    val wordList: List<String> = prepareWordList()
+    var wordList: List<String> = prepareWordList()
     private var level = 1
     var enemyBulletSpeed = DEFAULT_ENEMY_BULLET_SPEED
         private set
@@ -38,6 +38,10 @@ class GameConfig {
 
     private fun prepareWordList(): List<String> {
         return text.split(" ")
+    }
+
+    fun updateWordList(enteredText: String) {
+        wordList = enteredText.split(" ")
     }
 
 }
