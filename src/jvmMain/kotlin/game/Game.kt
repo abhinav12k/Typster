@@ -72,6 +72,7 @@ class Game {
     private fun addEnemyBullets(speedD: Double) {
         repeat(gameConfig.getWordsPerLevel()) {
             currentWord?.let {
+                if(it.isEmpty()) return@let
                 gameObjects.add(EnemyBulletData().apply {
                     position = Vector2(Random.nextDouble() * width.value, Random.nextDouble() * 80.0)
                     angle = (userShip.position - position).angle()

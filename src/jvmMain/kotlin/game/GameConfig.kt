@@ -5,6 +5,7 @@ import utils.DEFAULT_ENEMY_BULLET_SPEED
 import utils.DEFAULT_WORDS_PER_LEVEL
 
 class GameConfig {
+    private val regex = Regex("[^a-zA-Z]+")
     private var wordsPerLevel = DEFAULT_WORDS_PER_LEVEL
     var wordList: List<String> = prepareWordList()
     private var level = 1
@@ -16,6 +17,7 @@ class GameConfig {
         level = 1
         enemyBulletSpeed = DEFAULT_ENEMY_BULLET_SPEED
     }
+
     fun increaseEnemyBulletSpeed() {
         enemyBulletSpeed += 0.1
     }
@@ -37,11 +39,11 @@ class GameConfig {
     }
 
     private fun prepareWordList(): List<String> {
-        return text.split(" ")
+        return regex.split(text)
     }
 
     fun updateWordList(enteredText: String) {
-        wordList = enteredText.split(" ")
+        wordList = regex.split(enteredText)
     }
 
 }

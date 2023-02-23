@@ -49,5 +49,6 @@ object KeyboardHelper {
         Key.Semicolon to ";",
         Key.Backslash to "\\",
         Key.Apostrophe to "'",
+        //todo: add support for other keyboard input and update text filter
     )
 }
