@@ -22,6 +22,7 @@ class Game {
     var gameState by mutableStateOf(GameState.INITIALIZED)
         private set
     var gameStatus by mutableStateOf(GAME_STATUS_STARTED)
+    var isGameMenuVisible by mutableStateOf(true)
 
     private var currentTargetWord: String? = null
     private var currentTargetEnemyObject: GameObject? = null
@@ -83,16 +84,19 @@ class Game {
             GameState.STARTED -> {
                 gameState = GameState.STARTED
                 gameStatus = GAME_STATUS_RESUMED
+                isGameMenuVisible = false
             }
 
             GameState.PAUSED -> {
                 gameState = GameState.PAUSED
                 gameStatus = GAME_STATUS_PAUSED
+                isGameMenuVisible = true
             }
 
             GameState.RESUMED -> {
                 gameState = GameState.RESUMED
                 gameStatus = GAME_STATUS_RESUMED
+                isGameMenuVisible = false
             }
 
             GameState.LOST -> {

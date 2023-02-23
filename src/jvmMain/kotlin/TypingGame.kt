@@ -1,35 +1,32 @@
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.loadSvgPainter
 import androidx.compose.ui.res.useResource
 import androidx.compose.ui.unit.DpSize
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.*
 import game.*
 import kotlinx.coroutines.launch
-import ui.Bullet
-import ui.EnemyBullet
-import ui.Ship
+import ui.gameComponents.Bullet
+import ui.gameComponents.EnemyBullet
+import ui.gameComponents.Ship
+import ui.menu.GameMenu
+import ui.theme.GameBackgroundColor
 import utils.*
 
 @Composable
 @Preview
-fun App() {
+fun App(game: Game) {
 
-    val game = remember { Game() }
     val density = LocalDensity.current
     LaunchedEffect(Unit) {
         while (true) {
@@ -39,73 +36,29 @@ fun App() {
         }
     }
 
-    Column(modifier = Modifier
-        .background(
-            Color(51, 153, 255)
-        )
-        .fillMaxHeight()
-        .onKeyEvent {
-            if (game.gameState == GameState.STOPPED || game.gameState == GameState.PAUSED) {
-                false
-            } else if (isGamePauseTriggered(it)) {
-                game.pauseGame()
-                true
-            } else if (isValidKeyboardInput(it)) {
-                game.onKeyboardInput(getLetterFromKeyboardInput(it))
-                true
-            } else false
-        }
+    Box(
+        modifier = Modifier
+            .background(GameBackgroundColor)
+            .fillMaxHeight()
     ) {
-        Row(
-            modifier = Modifier
-                .align(Alignment.CenterHorizontally)
-        ) {
-            Button({
-                when (game.gameState) {
-                    GameState.INITIALIZED -> game.startGame()
-                    GameState.STARTED, GameState.RESUMED -> game.pauseGame()
-                    GameState.PAUSED -> game.resumeGame()
-                    else -> game.startGame()
+        if (game.isGameMenuVisible) {
+            GameMenu(game)
+        }
+        Box(modifier = Modifier
+            .fillMaxWidth()
+            .fillMaxHeight()
+            .clipToBounds()
+            .onSizeChanged {
+                with(density) {
+                    game.width = it.width.toDp()
+                    game.height = it.height.toDp()
                 }
             }) {
-                Text(
-                    text = when (game.gameState) {
-                        GameState.INITIALIZED -> "Play"
-                        GameState.PAUSED -> "Resume"
-                        GameState.STARTED, GameState.RESUMED, -> "Pause"
-                        else -> "Play"
-                    }
-                )
-            }
-            Text(
-                game.gameStatus,
-                modifier = Modifier.align(Alignment.CenterVertically).padding(horizontal = 16.dp),
-                color = Color.White
-            )
-        }
-        Box(
-            modifier = Modifier
-                .aspectRatio(1.0f)
-                .background(Color(0, 0, 30))
-                .fillMaxWidth()
-                .fillMaxHeight()
-        ) {
-            Box(modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight()
-                .clipToBounds()
-                .onSizeChanged {
-                    with(density) {
-                        game.width = it.width.toDp()
-                        game.height = it.height.toDp()
-                    }
-                }) {
-                game.gameObjects.forEach {
-                    when (it) {
-                        is ShipData -> Ship(it)
-                        is BulletData -> Bullet(it)
-                        is EnemyBulletData -> EnemyBullet(it)
-                    }
+            game.gameObjects.forEach {
+                when (it) {
+                    is ShipData -> Ship(it)
+                    is BulletData -> Bullet(it)
+                    is EnemyBulletData -> EnemyBullet(it)
                 }
             }
         }
@@ -119,14 +72,8 @@ fun main() = application {
         loadSvgPainter(inputStream = it, density = LocalDensity.current)
     }
     var windowVisible by remember { mutableStateOf(true) }
+    val game = remember { Game() }
     val coroutineScope = rememberCoroutineScope()
-
-    LaunchedEffect(Unit) {
-        AudioPlayer.play(BACKGROUND_MUSIC_PATH)
-        while (AudioPlayer.isMusicCompleted()) {
-            AudioPlayer.replay()
-        }
-    }
 
     MaterialTheme {
         val trayState = rememberTrayState()
@@ -176,15 +123,27 @@ fun main() = application {
                 windowVisible = false
             },
             title = APP_NAME,
-            visible = windowVisible
+            visible = windowVisible,
+            onKeyEvent = {
+                if (game.gameState == GameState.STOPPED || game.gameState == GameState.PAUSED) {
+                    false
+                } else if (isGamePauseTriggered(it)) {
+                    game.pauseGame()
+                    true
+                } else if (isValidKeyboardInput(it)) {
+                    game.onKeyboardInput(getLetterFromKeyboardInput(it))
+                    true
+                } else false
+            }
         ) {
-            App()
+            App(game)
         }
     }
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
-private fun isGamePauseTriggered(keyEvent: KeyEvent) = keyEvent.key == Key.Escape && keyEvent.type == KeyEventType.KeyDown
+private fun isGamePauseTriggered(keyEvent: KeyEvent) =
+    keyEvent.key == Key.Escape && keyEvent.type == KeyEventType.KeyDown
 
 private fun isValidKeyboardInput(keyEvent: KeyEvent): Boolean {
     return map.contains(keyEvent.key) && keyEvent.type == KeyEventType.KeyDown

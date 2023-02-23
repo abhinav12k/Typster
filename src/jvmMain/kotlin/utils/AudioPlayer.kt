@@ -9,7 +9,7 @@ object AudioPlayer {
 
     private var audioPlayer: Player? = null
     private var localFilePath: String? = null
-    suspend fun play(filePath: String) {
+    suspend fun play(filePath: String = BACKGROUND_MUSIC_PATH) {
         localFilePath = filePath
         withContext(Dispatchers.IO) {
             val inputStream = FileInputStream(filePath)

@@ -1,4 +1,4 @@
-package ui
+package ui.gameComponents
 
 import game.EnemyBulletData
 import androidx.compose.foundation.background

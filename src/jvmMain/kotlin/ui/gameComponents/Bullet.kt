@@ -1,4 +1,4 @@
-package ui
+package ui.gameComponents
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
