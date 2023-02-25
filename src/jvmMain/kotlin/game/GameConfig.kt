@@ -16,6 +16,7 @@ class GameConfig {
         wordsPerLevel = DEFAULT_WORDS_PER_LEVEL
         level = 1
         enemyBulletSpeed = DEFAULT_ENEMY_BULLET_SPEED
+        wordList = prepareWordList()
     }
 
     fun increaseEnemyBulletSpeed() {

@@ -38,12 +38,8 @@ class Game {
             return tmp
         }
 
-    fun updateWordList(enteredText: String) {
-        gameConfig.updateWordList(enteredText)
-    }
-
-    fun startGame() {
-        initGameVariables()
+    fun startGame(wordsString: String? = null) {
+        initGameVariables(wordsString)
 
         setupPlayerShip()
 
@@ -52,8 +48,12 @@ class Game {
         updateGameState(GameState.STARTED)
     }
 
-    private fun initGameVariables() {
+    private fun initGameVariables(wordsString: String?) {
         gameConfig.resetGameConfig()
+
+        if(!wordsString.isNullOrEmpty()) {
+            gameConfig.updateWordList(wordsString)
+        }
 
         gameObjects.clear()
         currentWordIdx = 0

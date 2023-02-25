@@ -1,8 +1,8 @@
 package ui.menu
-
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.Button
 import androidx.compose.material.Card
 import androidx.compose.material.Text
@@ -18,21 +18,27 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import game.Game
 import game.GameState
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import ui.theme.MenuOptionBackgroundColor
 import ui.theme.MenuOptionBorderColor
 import utils.AudioPlayer
+import java.awt.Desktop
+import java.net.URI
+import java.util.*
 import kotlin.system.exitProcess
 
 @Composable
-fun BoxScope.GameMenu(game: Game) {
-    val coroutineScope = rememberCoroutineScope()
+fun BoxScope.GameMenu(game: Game, coroutineScope: CoroutineScope) {
     var isDialogOpen by remember { mutableStateOf(false) }
 
     Column(
@@ -71,6 +77,9 @@ fun BoxScope.GameMenu(game: Game) {
                 optionLabel = "Restart",
                 onClick = {
                     game.startGame()
+                    coroutineScope.launch {
+                        AudioPlayer.play()
+                    }
                 }
             )
         }
@@ -113,19 +122,20 @@ fun BoxScope.GameMenu(game: Game) {
 
         Text(
             game.gameStatus,
-            color = Color.White,
+            color = Color.White.copy(alpha = .7f),
             fontWeight = FontWeight.Bold,
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
         )
+
+        FooterText()
     }
 
     if (isDialogOpen) {
         InputTextDialog(onClose = {
             isDialogOpen = false
         }) {
-            game.updateWordList(it)
-            game.startGame()
+            game.startGame(it)
             coroutineScope.launch {
                 AudioPlayer.play()
             }
@@ -192,4 +202,59 @@ private fun InputTextDialog(onClose: () -> Unit, playBtnClicked: (enteredText: S
 
 
     }
+}
+
+fun openInBrowser(uri: URI) {
+    val osName by lazy(LazyThreadSafetyMode.NONE) { System.getProperty("os.name").lowercase(Locale.getDefault()) }
+    val desktop = Desktop.getDesktop()
+    when {
+        Desktop.isDesktopSupported() && desktop.isSupported(Desktop.Action.BROWSE) -> desktop.browse(uri)
+        "mac" in osName -> Runtime.getRuntime().exec("open $uri")
+        "nix" in osName || "nux" in osName -> Runtime.getRuntime().exec("xdg-open $uri")
+        else -> throw RuntimeException("cannot open $uri")
+    }
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+fun ColumnScope.FooterText() {
+
+    var isOptionActive by remember { mutableStateOf(false) }
+
+    val annotatedText = buildAnnotatedString {
+        withStyle(
+            style = SpanStyle(
+                color = Color.White.copy(.7f), fontWeight = FontWeight.Bold
+            )
+        ) {
+            append("Made with ❤️ by ")
+        }
+
+        pushStringAnnotation(
+            tag = "Github", annotation = "https://github.com/abhinav12k"
+        )
+        withStyle(
+            style = SpanStyle(
+                color = if (isOptionActive) Color.White else Color.White.copy(.7f), fontWeight = FontWeight.Bold
+            )
+        ) {
+            append("Abhinav")
+        }
+
+        pop()
+    }
+
+    ClickableText(
+        text = annotatedText, onClick = { offset ->
+            annotatedText.getStringAnnotations(
+                tag = "Github", start = offset, end = offset
+            ).firstOrNull()?.let { annotation ->
+                openInBrowser(URI(annotation.item))
+            }
+        },
+        modifier = Modifier
+            .align(Alignment.CenterHorizontally)
+            .onPointerEvent(PointerEventType.Enter) { isOptionActive = true }
+            .onPointerEvent(PointerEventType.Exit) { isOptionActive = false }
+    )
 }

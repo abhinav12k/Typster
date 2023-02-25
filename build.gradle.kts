@@ -36,12 +36,13 @@ kotlin {
 
 compose.desktop {
     application {
-        mainClass = "MainKt"
+        mainClass = "TypingGameKt"
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "TypingGame"
             packageVersion = "1.0.0"
             copyright = "© 2023 Abhinav. All rights reserved."
+            appResourcesRootDir.set(project.layout.projectDirectory.dir("resources"))
         }
     }
 }

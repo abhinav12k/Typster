@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.window.*
 import game.*
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import ui.gameComponents.Bullet
 import ui.gameComponents.EnemyBullet
@@ -26,7 +27,7 @@ import utils.*
 
 @Composable
 @Preview
-fun App(game: Game) {
+fun App(game: Game, coroutineScope: CoroutineScope) {
 
     val density = LocalDensity.current
     LaunchedEffect(Unit) {
@@ -43,7 +44,7 @@ fun App(game: Game) {
             .fillMaxHeight()
     ) {
         if (game.isGameMenuVisible) {
-            GameMenu(game)
+            GameMenu(game, coroutineScope)
         }
         Box(modifier = Modifier
             .fillMaxWidth()
@@ -141,7 +142,7 @@ fun main() = application {
             },
             resizable = true //todo: find fix for disabling full screen mode
         ) {
-            App(game)
+            App(game, coroutineScope)
         }
     }
 }
