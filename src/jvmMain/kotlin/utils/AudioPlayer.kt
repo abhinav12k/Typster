@@ -11,11 +11,15 @@ object AudioPlayer {
     private var localFilePath: String = BACKGROUND_MUSIC_PATH
     suspend fun play(filePath: String = BACKGROUND_MUSIC_PATH) {
         withContext(Dispatchers.IO) {
-            stop()
-            localFilePath = filePath
-            val inputStream = FileInputStream(filePath)
-            audioPlayer = Player(inputStream)
-            audioPlayer?.play()
+            try {
+                stop()
+                localFilePath = filePath
+                val inputStream = FileInputStream(filePath)
+                audioPlayer = Player(inputStream)
+                audioPlayer?.play()
+            } catch (e: Exception) {
+                println(e.message)
+            }
         }
     }
 

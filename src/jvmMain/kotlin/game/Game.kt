@@ -14,15 +14,13 @@ class Game {
     private var prevTime = 0L   // storing the last time game was updated
     private var userShip = UserShipData()
 
-    private var targetLocation by mutableStateOf(DpOffset.Zero)
-
     private val gameConfig = GameConfig()
 
     var gameObjects = mutableStateListOf<GameObject>()
     var gameState by mutableStateOf(GameState.INITIALIZED)
         private set
-    var gameStatus by mutableStateOf(GAME_STATUS_STARTED)
     var isGameMenuVisible by mutableStateOf(true)
+    val isBackgroundMusicEnabledOnStart = gameConfig.isBackgroundMusicEnabledOnStart()
 
     private var currentTargetWord: String? = null
     private var currentTargetEnemyObject: GameObject? = null
@@ -87,35 +85,30 @@ class Game {
         when (gameStateArg) {
             GameState.STARTED -> {
                 gameState = GameState.STARTED
-                gameStatus = GAME_STATUS_RESUMED
                 isGameMenuVisible = false
             }
 
             GameState.PAUSED -> {
                 gameState = GameState.PAUSED
-                gameStatus = GAME_STATUS_PAUSED
                 isGameMenuVisible = true
             }
 
             GameState.RESUMED -> {
                 gameState = GameState.RESUMED
-                gameStatus = GAME_STATUS_RESUMED
                 isGameMenuVisible = false
             }
 
             GameState.LOST -> {
-                gameState = GameState.STOPPED
-                gameStatus = GAME_STATUS_LOST
+                gameState = GameState.LOST
                 isGameMenuVisible = true
             }
 
             GameState.WON -> {
-                gameState = GameState.STOPPED
-                gameStatus = GAME_STATUS_WON
+                gameState = GameState.WON
                 isGameMenuVisible = true
             }
 
-            GameState.STOPPED, GameState.INITIALIZED -> {}
+            GameState.INITIALIZED -> {}
         }
     }
 
@@ -125,8 +118,6 @@ class Game {
         prevTime = time
 
         if(!isGameInRunningState()) return
-
-        userShip.visualAngle = getTargetAngle()
 
         val enemyBullets = gameObjects.filterIsInstance<EnemyBulletData>()
         val bullets = gameObjects.filterIsInstance<BulletData>()
@@ -155,7 +146,7 @@ class Game {
         return gameState == GameState.STARTED || gameState == GameState.RESUMED
     }
 
-    private fun getTargetAngle(): Double {
+    private fun getTargetAngle(targetLocation: DpOffset): Double {
         val currentTargetWordVector = Vector2(targetLocation.x.value.toDouble(), targetLocation.y.value.toDouble())
         val shipToTargetWord = currentTargetWordVector - userShip.position
         return shipToTargetWord.angle()
@@ -170,10 +161,11 @@ class Game {
             }?.apply {
                 currentTargetWord = word
                 isUnderAttack = true
-                targetLocation = DpOffset(
+                val targetLocation = DpOffset(
                     this.position.x.dp,
                     this.position.y.dp
                 )
+                userShip.visualAngle = getTargetAngle(targetLocation)
             }
             if (!currentTargetWord.isNullOrEmpty()) {
                 if (currentTargetWord?.get(idxUnderValidation)?.lowercase() == currentTypedLetter.lowercase()) {

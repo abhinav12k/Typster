@@ -12,7 +12,6 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.loadSvgPainter
 import androidx.compose.ui.res.useResource
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.window.*
 import game.*
@@ -42,25 +41,28 @@ fun App(game: Game, coroutineScope: CoroutineScope) {
         modifier = Modifier
             .background(GameBackgroundColor)
             .fillMaxHeight()
-    ) {
-        if (game.isGameMenuVisible) {
-            GameMenu(game, coroutineScope)
-        }
-        Box(modifier = Modifier
-            .fillMaxWidth()
-            .fillMaxHeight()
-            .clipToBounds()
             .onSizeChanged {
                 with(density) {
                     game.width = it.width.toDp()
                     game.height = it.height.toDp()
                 }
-            }) {
-            game.gameObjects.forEach {
-                when (it) {
-                    is ShipData -> Ship(it)
-                    is BulletData -> Bullet(it)
-                    is EnemyBulletData -> EnemyBullet(it)
+            }
+    ) {
+        if (game.isGameMenuVisible) {
+            GameMenu(game, coroutineScope)
+        } else {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight()
+                    .clipToBounds()
+            ) {
+                game.gameObjects.forEach {
+                    when (it) {
+                        is ShipData -> Ship(it)
+                        is BulletData -> Bullet(it)
+                        is EnemyBulletData -> EnemyBullet(it)
+                    }
                 }
             }
         }
@@ -70,7 +72,7 @@ fun App(game: Game, coroutineScope: CoroutineScope) {
 
 fun main() = application {
 
-    val appIcon = useResource("drawable/typing.svg") {
+    val trayIcon = useResource(TRAY_ICON_PATH) {
         loadSvgPainter(inputStream = it, density = LocalDensity.current)
     }
     var windowVisible by remember { mutableStateOf(true) }
@@ -80,35 +82,29 @@ fun main() = application {
 //    var isResizable by remember { mutableStateOf(true) }
 //    isResizable = game.gameState == GameState.INITIALIZED
 
+    if (game.isBackgroundMusicEnabledOnStart) {
+        coroutineScope.launch {
+            AudioPlayer.play()
+        }
+    }
+
     MaterialTheme {
         val trayState = rememberTrayState()
         Tray(
             state = trayState,
-            icon = appIcon,
+            icon = trayIcon,
             onAction = { windowVisible = true },
             menu = {
                 Item(
-                    text = "Stop music",
-                    onClick = { AudioPlayer.stop() }
-                )
-                Item(
-                    text = "Replay music",
-                    onClick = {
-                        coroutineScope.launch {
-                            AudioPlayer.play()
-                        }
-                    }
-                )
-                Item(
-                    text = "Hide game",
+                    text = "Hide game window",
                     onClick = { windowVisible = false }
                 )
                 Item(
-                    text = "Show game",
+                    text = "Show game window",
                     onClick = { windowVisible = true }
                 )
                 Item(
-                    text = "Close",
+                    text = "Exit",
                     onClick = {
                         AudioPlayer.stop()
                         exitApplication()
@@ -130,7 +126,7 @@ fun main() = application {
             title = APP_NAME,
             visible = windowVisible,
             onKeyEvent = {
-                if (game.gameState == GameState.STOPPED || game.gameState == GameState.PAUSED) {
+                if (game.gameState == GameState.LOST || game.gameState == GameState.WON || game.gameState == GameState.PAUSED) {
                     false
                 } else if (game.gameState != GameState.INITIALIZED && KeyboardHelper.isGamePauseTriggered(it)) {
                     game.pauseGame()

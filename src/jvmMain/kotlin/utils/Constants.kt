@@ -3,12 +3,14 @@ package utils
 import androidx.compose.ui.unit.dp
 
 const val APP_NAME = "Typing Game"
-const val GAME_STATUS_WON = "Congratulations!"
-const val GAME_STATUS_LOST = "Better luck next time!"
-const val GAME_STATUS_PAUSED = "Game Paused :("
-const val GAME_STATUS_RESUMED = "Good luck!"
-const val GAME_STATUS_STARTED = "Let's begin!"
 
+const val GAME_TITLE_IMAGE_PATH = "drawable/GameTitle.png"
+const val GAME_LOST_IMAGE_PATH = "drawable/betterLuckNextTime.jpeg"
+const val GAME_WON_IMAGE_PATH = "drawable/congratulations.jpeg"
+const val TRAY_ICON_PATH = "drawable/typing.svg"
+const val UNMUTE_ICON_PATH = "drawable/unmute.png"
+const val MUTE_ICON_PATH = "drawable/mute.png"
+const val EXIT_ICON_PATH = "drawable/exit.png"
 const val BACKGROUND_MUSIC_PATH = "src/jvmMain/resources/background_music.mp3"
 
 const val DEFAULT_WORDS_PER_LEVEL = 3
