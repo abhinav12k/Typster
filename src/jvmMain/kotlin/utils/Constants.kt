@@ -11,7 +11,9 @@ const val TRAY_ICON_PATH = "drawable/typing.svg"
 const val UNMUTE_ICON_PATH = "drawable/unmute.png"
 const val MUTE_ICON_PATH = "drawable/mute.png"
 const val EXIT_ICON_PATH = "drawable/exit.png"
-const val BACKGROUND_MUSIC_PATH = "src/jvmMain/resources/background_music.mp3"
+const val SPACESHIP_PATH = "drawable/spaceship.svg"
+const val BACKGROUND_MUSIC_1_PATH = "assets/background_music.wav"
+const val BACKGROUND_MUSIC_2_PATH = "assets/overtune.wav"
 
 const val DEFAULT_WORDS_PER_LEVEL = 3
 const val DEFAULT_ENEMY_BULLET_SPEED = 2.0

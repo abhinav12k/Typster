@@ -27,7 +27,7 @@ kotlin {
             dependencies {
                 implementation(compose.desktop.currentOs)
                 implementation("org.openrndr:openrndr-math:0.3.47")
-                implementation("com.github.umjammer:jlayer:1.0.2")
+//                implementation("com.github.umjammer:jlayer:1.0.2")
             }
         }
         val jvmTest by getting
@@ -43,6 +43,18 @@ compose.desktop {
             packageVersion = "1.0.0"
             copyright = "© 2023 Abhinav. All rights reserved."
             appResourcesRootDir.set(project.layout.projectDirectory.dir("resources"))
+
+            val iconsRoot = project.file("src/jvmMain/resources/drawable")
+
+            macOS {
+                iconFile.set(iconsRoot.resolve("launcher_icons/mac.icns"))
+            }
+            windows {
+                iconFile.set(iconsRoot.resolve("launcher_icons/windows.ico"))
+            }
+            linux {
+                iconFile.set(iconsRoot.resolve("launcher_icons/linux.png"))
+            }
         }
     }
 }

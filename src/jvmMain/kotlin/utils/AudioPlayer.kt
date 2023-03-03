@@ -1,31 +1,34 @@
 package utils
 
-import javazoom.jl.player.Player
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.io.FileInputStream
+import java.io.BufferedInputStream
+import javax.sound.sampled.AudioSystem
+import javax.sound.sampled.Clip
+
 
 object AudioPlayer {
 
-    private var audioPlayer: Player? = null
-    private var localFilePath: String = BACKGROUND_MUSIC_PATH
-    suspend fun play(filePath: String = BACKGROUND_MUSIC_PATH) {
+    private var audioClip: Clip? = null
+    suspend fun play(filePath: String = BACKGROUND_MUSIC_2_PATH) {
         withContext(Dispatchers.IO) {
             try {
-                stop()
-                localFilePath = filePath
-                val inputStream = FileInputStream(filePath)
-                audioPlayer = Player(inputStream)
-                audioPlayer?.play()
+                val bufferedIn = BufferedInputStream(
+                    Thread.currentThread().contextClassLoader.getResourceAsStream(filePath)!!
+                )
+                val audioInputStream = AudioSystem.getAudioInputStream(bufferedIn)
+                audioClip = AudioSystem.getClip()
+                audioClip?.open(audioInputStream)
+                audioClip?.loop(Clip.LOOP_CONTINUOUSLY)
             } catch (e: Exception) {
-                println(e.message)
+                println("Error: $e")
             }
         }
     }
 
     fun stop() {
-        audioPlayer?.close()
-        audioPlayer = null
+        audioClip?.stop()
+        audioClip = null
     }
 
 }
