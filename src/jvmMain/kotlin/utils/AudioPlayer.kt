@@ -13,6 +13,7 @@ object AudioPlayer {
     suspend fun play(filePath: String = BACKGROUND_MUSIC_2_PATH) {
         withContext(Dispatchers.IO) {
             try {
+                stop()
                 val bufferedIn = BufferedInputStream(
                     Thread.currentThread().contextClassLoader.getResourceAsStream(filePath)!!
                 )

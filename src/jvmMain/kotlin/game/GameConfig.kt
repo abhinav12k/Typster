@@ -2,6 +2,7 @@ package game
 
 import data.text
 import utils.DEFAULT_ENEMY_BULLET_SPEED
+import utils.DEFAULT_STAR_SPEED
 import utils.DEFAULT_WORDS_PER_LEVEL
 
 class GameConfig {
@@ -10,6 +11,8 @@ class GameConfig {
     var wordList: List<String> = prepareWordList()
     private var level = 1
     var enemyBulletSpeed = DEFAULT_ENEMY_BULLET_SPEED
+        private set
+    var starSpeed = DEFAULT_STAR_SPEED
         private set
 
     fun resetGameConfig() {
@@ -21,6 +24,10 @@ class GameConfig {
 
     fun increaseEnemyBulletSpeed() {
         enemyBulletSpeed += 0.1
+    }
+
+    fun increaseStarSpeed() {
+        starSpeed += 0.1
     }
 
     fun increaseLevel() {

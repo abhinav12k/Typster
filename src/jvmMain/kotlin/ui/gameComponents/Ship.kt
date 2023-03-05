@@ -26,7 +26,7 @@ fun Ship(shipData: ShipData) {
     Box(
         Modifier.offset(shipData.xOffset, shipData.yOffset)
             .size(shipSize)
-            .rotate(shipData.visualAngle.toFloat())
+            .rotate(shipData.visualAngle.toFloat()-270)
             .clip(CircleShape)
             .background(Color.Black)
     ) {

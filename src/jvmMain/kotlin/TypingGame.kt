@@ -20,6 +20,7 @@ import kotlinx.coroutines.launch
 import ui.gameComponents.Bullet
 import ui.gameComponents.EnemyBullet
 import ui.gameComponents.Ship
+import ui.gameComponents.StarrySky
 import ui.menu.GameMenu
 import ui.theme.GameBackgroundColor
 import utils.*
@@ -42,6 +43,8 @@ fun App(game: Game, coroutineScope: CoroutineScope) {
             .background(GameBackgroundColor)
             .fillMaxHeight()
             .onSizeChanged {
+                game.heightPx = it.height
+                game.widthPx = it.width
                 with(density) {
                     game.width = it.width.toDp()
                     game.height = it.height.toDp()
@@ -51,6 +54,7 @@ fun App(game: Game, coroutineScope: CoroutineScope) {
         if (game.isGameMenuVisible) {
             GameMenu(game, coroutineScope)
         } else {
+            StarrySky(game.starsData)
             Box(
                 modifier = Modifier
                     .fillMaxWidth()

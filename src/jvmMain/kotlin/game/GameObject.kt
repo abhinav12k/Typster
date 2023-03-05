@@ -30,7 +30,7 @@ class EnemyShipData : ShipData() {
 
 class UserShipData : ShipData() {
     override val size: Double = 40.0
-    override var visualAngle: Double = 0.0
+    override var visualAngle: Double = 270.0
 
     override fun fireArm(shipData: ShipData): GameObject {
         return BulletData(30.0, shipData.visualAngle, shipData.position)
@@ -65,7 +65,6 @@ sealed class GameObject(speed: Double = 0.0, angle: Double = 0.0, position: Vect
         val obj = this
         val velocity = movementVector * realDelta.toDouble()
         obj.position += velocity
-        obj.position = obj.position // to make sure it remains inside window bounds
     }
 
     fun overlapsWith(other: GameObject): Boolean {

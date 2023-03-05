@@ -17,6 +17,7 @@ const val BACKGROUND_MUSIC_2_PATH = "assets/overtune.wav"
 
 const val DEFAULT_WORDS_PER_LEVEL = 3
 const val DEFAULT_ENEMY_BULLET_SPEED = 2.0
+const val DEFAULT_STAR_SPEED = 1.0
 
 val windowWidth = 700.dp
 val windowHeight = 900.dp

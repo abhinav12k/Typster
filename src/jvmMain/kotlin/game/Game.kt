@@ -4,10 +4,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import org.openrndr.math.Vector2
-import utils.*
+import org.openrndr.math.mod
+import utils.angle
 import kotlin.random.Random
 
 class Game {
@@ -15,6 +18,10 @@ class Game {
     private var userShip = UserShipData()
 
     private val gameConfig = GameConfig()
+
+    val starsData by lazy {
+        getStars(heightPx, widthPx)
+    }
 
     var gameObjects = mutableStateListOf<GameObject>()
     var gameState by mutableStateOf(GameState.INITIALIZED)
@@ -49,7 +56,7 @@ class Game {
     private fun initGameVariables(wordsString: String?) {
         gameConfig.resetGameConfig()
 
-        if(!wordsString.isNullOrEmpty()) {
+        if (!wordsString.isNullOrEmpty()) {
             gameConfig.updateWordList(wordsString)
         }
 
@@ -70,7 +77,7 @@ class Game {
     private fun addEnemyBullets(speedD: Double) {
         repeat(gameConfig.getWordsPerLevel()) {
             currentWord?.let {
-                if(it.isEmpty()) return@let
+                if (it.isEmpty()) return@let
                 gameObjects.add(EnemyBulletData().apply {
                     position = Vector2(Random.nextDouble() * width.value, Random.nextDouble() * 80.0)
                     angle = (userShip.position - position).angle()
@@ -117,7 +124,7 @@ class Game {
         val floatDelta = (delta / 1e8).toFloat() //because time is in nano seconds
         prevTime = time
 
-        if(!isGameInRunningState()) return
+        if (!isGameInRunningState()) return
 
         val enemyBullets = gameObjects.filterIsInstance<EnemyBulletData>()
         val bullets = gameObjects.filterIsInstance<BulletData>()
@@ -139,6 +146,18 @@ class Game {
 
         if (enemyBullets.isEmpty()) {
             winGame()
+        }
+
+        updateStarData()
+    }
+
+    private fun updateStarData() {
+        starsData.forEach {
+            var yPos = it.position.y + gameConfig.starSpeed.toFloat()
+            if (yPos >= heightPx) {
+                yPos = 0f
+            }
+            it.position = it.position.copy(y = yPos)
         }
     }
 
@@ -193,6 +212,7 @@ class Game {
         if (enemyBullets.size <= 2) {
             addEnemyBullets(gameConfig.enemyBulletSpeed)
             gameConfig.increaseEnemyBulletSpeed()
+            gameConfig.increaseStarSpeed()
         }
     }
 
@@ -215,4 +235,7 @@ class Game {
 
     var width by mutableStateOf(0.dp)
     var height by mutableStateOf(0.dp)
+
+    var widthPx = 0
+    var heightPx = 0
 }
