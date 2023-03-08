@@ -4,12 +4,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import org.openrndr.math.Vector2
-import org.openrndr.math.mod
+import utils.AudioManager
+import utils.EXPLOSION_SOUND_PATH
+import utils.FIRING_SOUND_PATH
 import utils.angle
 import kotlin.random.Random
 
@@ -51,6 +51,8 @@ class Game {
         addEnemyBullets(gameConfig.enemyBulletSpeed)
 
         updateGameState(GameState.STARTED)
+
+        AudioManager.play()
     }
 
     private fun initGameVariables(wordsString: String?) {
@@ -133,6 +135,19 @@ class Game {
             bullets.firstOrNull { it.overlapsWith(enemyBulletData) }?.let {
                 //todo: introduce drag in enemy bullets
                 gameObjects.remove(it)
+
+                if (idxUnderValidation == currentTargetWord?.length) {
+                    AudioManager.play(EXPLOSION_SOUND_PATH, false)
+
+                    gameObjects.remove(currentTargetEnemyObject)
+
+                    gameObjects.removeAll(gameObjects.filterIsInstance<BulletData>())
+
+                    idxUnderValidation = 0
+                    currentTargetEnemyObject = null
+                    currentTargetWord = null
+                }
+
             }
         }
 
@@ -186,24 +201,15 @@ class Game {
                 )
                 userShip.visualAngle = getTargetAngle(targetLocation)
             }
-            if (!currentTargetWord.isNullOrEmpty()) {
+            if (!currentTargetWord.isNullOrEmpty() && idxUnderValidation < (currentTargetWord?.length ?: 0)) {
                 if (currentTargetWord?.get(idxUnderValidation)?.lowercase() == currentTypedLetter.lowercase()) {
                     idxUnderValidation = idxUnderValidation.inc()
 
+                    AudioManager.play(FIRING_SOUND_PATH, false)
                     userShip.fire(this)
 
                     currentTargetWord?.substring(idxUnderValidation)?.let {
                         (currentTargetEnemyObject as? EnemyBulletData)?.word = it
-                    }
-
-                    if (idxUnderValidation == currentTargetWord?.length) {
-                        gameObjects.remove(currentTargetEnemyObject)
-
-                        gameObjects.removeAll(gameObjects.filterIsInstance<BulletData>())
-
-                        idxUnderValidation = 0
-                        currentTargetEnemyObject = null
-                        currentTargetWord = null
                     }
                 }
             }
@@ -239,3 +245,7 @@ class Game {
     var widthPx = 0
     var heightPx = 0
 }
+
+//todo - drag in the word
+//todo - sound effect for every hit and bullet firing
+//todo - blast visual effect for word

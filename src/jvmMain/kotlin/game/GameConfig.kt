@@ -54,6 +54,6 @@ class GameConfig {
         wordList = regex.split(enteredText)
     }
 
-    fun isBackgroundMusicEnabledOnStart() = true
+    fun isBackgroundMusicEnabledOnStart() = false
 
 }

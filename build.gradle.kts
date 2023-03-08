@@ -27,7 +27,6 @@ kotlin {
             dependencies {
                 implementation(compose.desktop.currentOs)
                 implementation("org.openrndr:openrndr-math:0.3.47")
-//                implementation("com.github.umjammer:jlayer:1.0.2")
             }
         }
         val jvmTest by getting
@@ -36,10 +35,10 @@ kotlin {
 
 compose.desktop {
     application {
-        mainClass = "TypingGameKt"
+        mainClass = "TypsterKt"
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "TypingGame"
+            packageName = "Typster"
             packageVersion = "1.0.0"
             copyright = "© 2023 Abhinav. All rights reserved."
             appResourcesRootDir.set(project.layout.projectDirectory.dir("resources"))

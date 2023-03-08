@@ -12,5 +12,5 @@ pluginManagement {
     }
 }
 
-rootProject.name = "TypingGame"
+rootProject.name = "Typster"
 

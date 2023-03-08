@@ -7,19 +7,17 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import ui.theme.IconColor
-import utils.AudioPlayer
+import utils.AudioManager
 import utils.EXIT_ICON_PATH
 import utils.MUTE_ICON_PATH
 import utils.UNMUTE_ICON_PATH
 import kotlin.system.exitProcess
 
 @Composable
-fun NavSection(isMusicPlayingOnStart: Boolean, coroutineScope: CoroutineScope) {
+fun NavSection() {
 
-    var isMusicPlaying by remember { mutableStateOf(isMusicPlayingOnStart) }
+    var isMusicPlaying by remember { mutableStateOf(AudioManager.isDefaultBackgroundMusicPlaying()) }
 
     Row(
         modifier = Modifier.fillMaxWidth().padding(top = 12.dp, end = 12.dp),
@@ -33,14 +31,12 @@ fun NavSection(isMusicPlayingOnStart: Boolean, coroutineScope: CoroutineScope) {
             modifier = Modifier
                 .size(24.dp)
                 .clickable {
-                    coroutineScope.launch {
-                        if (isMusicPlaying) {
-                            isMusicPlaying = false
-                            AudioPlayer.stop()
-                        } else {
-                            isMusicPlaying = true
-                            AudioPlayer.play()
-                        }
+                    if (isMusicPlaying) {
+                        isMusicPlaying = false
+                        AudioManager.stopBackgroundMusic()
+                    } else {
+                        isMusicPlaying = true
+                        AudioManager.play()
                     }
                 }
         )

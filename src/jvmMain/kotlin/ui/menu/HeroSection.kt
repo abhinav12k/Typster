@@ -58,18 +58,14 @@ fun ColumnScope.HeroSection(game: Game, onCustomTextInputClicked: () -> Unit) {
                 GameState.PAUSED -> "Resume"
                 GameState.STARTED, GameState.RESUMED -> "Pause"
                 GameState.LOST, GameState.WON -> "Restart"
-                else -> "Play"
             },
             onClick = {
                 when (game.gameState) {
-                    GameState.INITIALIZED -> {
+                    GameState.INITIALIZED, GameState.LOST, GameState.WON -> {
                         game.startGame()
                     }
-
                     GameState.STARTED, GameState.RESUMED -> game.pauseGame()
                     GameState.PAUSED -> game.resumeGame()
-                    GameState.LOST, GameState.WON -> game.startGame()
-                    else -> game.startGame()
                 }
             },
             defaultBgColor = Color.White,
