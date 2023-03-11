@@ -30,7 +30,7 @@ class EnemyShipData : ShipData() {
 
 class UserShipData : ShipData() {
     override val size: Double = 40.0
-    override var visualAngle: Double = 270.0
+    override var visualAngle: Double = 0.0
 
     override fun fireArm(shipData: ShipData): GameObject {
         return BulletData(80.0, shipData.visualAngle, shipData.position)
@@ -42,6 +42,8 @@ class EnemyBulletData(speed: Double = 0.0, angle: Double = 0.0, position: Vector
     override val size: Double = 40.0
     var word: String = ""
     var isUnderAttack = false
+    var isTypedCharacterMismatched = false
+    var isWordFinished = false
 }
 
 class BulletData(speed: Double = 0.0, angle: Double = 0.0, position: Vector2 = Vector2.ZERO) :

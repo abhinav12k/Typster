@@ -22,7 +22,7 @@ fun Bullet(bulletData: BulletData) {
         Modifier
             .offset(bulletData.xOffset, bulletData.yOffset)
             .size(bulletSize)
-            .rotate(bulletData.angle.toFloat())
+//            .rotate(bulletData.angle.toFloat())
             .clip(CircleShape)
             .background(color = Color.White)
     )

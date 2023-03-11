@@ -52,6 +52,7 @@ class Game {
 
         updateGameState(GameState.STARTED)
 
+        AudioManager.stopBackgroundMusic()
         AudioManager.play()
     }
 
@@ -132,22 +133,28 @@ class Game {
         val bullets = gameObjects.filterIsInstance<BulletData>()
 
         enemyBullets.forEach { enemyBulletData ->
-            bullets.firstOrNull { it.overlapsWith(enemyBulletData) }?.let {
-                //todo: introduce drag in enemy bullets
-                gameObjects.remove(it)
+            if (enemyBulletData.isWordFinished) {
+                gameObjects.remove(enemyBulletData)
+            } else {
+                bullets.firstOrNull { it.overlapsWith(enemyBulletData) }?.let {
+                    //todo: introduce drag in enemy bullets
+//                enemyBulletData.position -= Vector2(0.0,4.0)
 
-                if (idxUnderValidation == currentTargetWord?.length) {
-                    AudioManager.play(EXPLOSION_SOUND_PATH, false)
+                    gameObjects.remove(it)
 
-                    gameObjects.remove(currentTargetEnemyObject)
+                    if (idxUnderValidation == currentTargetWord?.length) {
+                        AudioManager.play(EXPLOSION_SOUND_PATH, false)
 
-                    gameObjects.removeAll(gameObjects.filterIsInstance<BulletData>())
+                        (currentTargetEnemyObject as? EnemyBulletData)?.isWordFinished = true
 
-                    idxUnderValidation = 0
-                    currentTargetEnemyObject = null
-                    currentTargetWord = null
+                        gameObjects.removeAll(gameObjects.filterIsInstance<BulletData>())
+
+                        idxUnderValidation = 0
+                        currentTargetEnemyObject = null
+                        currentTargetWord = null
+                    }
+
                 }
-
             }
         }
 
@@ -211,6 +218,8 @@ class Game {
                     currentTargetWord?.substring(idxUnderValidation)?.let {
                         (currentTargetEnemyObject as? EnemyBulletData)?.word = it
                     }
+                } else {
+                    (currentTargetEnemyObject as? EnemyBulletData)?.isTypedCharacterMismatched = true
                 }
             }
         }
@@ -245,7 +254,3 @@ class Game {
     var widthPx = 0
     var heightPx = 0
 }
-
-//todo - drag in the word
-//todo - sound effect for every hit and bullet firing
-//todo - blast visual effect for word

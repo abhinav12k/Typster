@@ -15,10 +15,7 @@ import androidx.compose.ui.res.useResource
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.window.*
 import game.*
-import ui.gameComponents.Bullet
-import ui.gameComponents.EnemyBullet
-import ui.gameComponents.Ship
-import ui.gameComponents.StarrySky
+import ui.gameComponents.*
 import ui.menu.GameMenu
 import ui.theme.GameBackgroundColor
 import utils.*
@@ -63,7 +60,9 @@ fun App(game: Game) {
                     when (it) {
                         is ShipData -> Ship(it)
                         is BulletData -> Bullet(it)
-                        is EnemyBulletData -> EnemyBullet(it)
+                        is EnemyBulletData -> EnemyBullet(it) {
+                            BlastingBox(it.xOffset, it.yOffset)
+                        }
                     }
                 }
             }
