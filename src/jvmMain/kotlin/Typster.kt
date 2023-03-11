@@ -13,6 +13,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.loadSvgPainter
 import androidx.compose.ui.res.useResource
 import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.*
 import game.*
 import ui.gameComponents.*
@@ -61,7 +62,7 @@ fun App(game: Game) {
                         is ShipData -> Ship(it)
                         is BulletData -> Bullet(it)
                         is EnemyBulletData -> EnemyBullet(it) {
-                            BlastingBox(it.xOffset, it.yOffset)
+                            BlastingBox(it.position.x.dp - it.size.dp, it.position.y.dp - it.size.dp)
                         }
                     }
                 }
