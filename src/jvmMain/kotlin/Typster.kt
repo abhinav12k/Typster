@@ -13,10 +13,8 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.loadSvgPainter
 import androidx.compose.ui.res.useResource
 import androidx.compose.ui.unit.DpSize
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.*
 import game.*
-import kotlinx.coroutines.*
 import ui.gameComponents.*
 import ui.menu.GameMenu
 import ui.theme.GameBackgroundColor
@@ -28,15 +26,9 @@ fun App(game: Game) {
 
     val density = LocalDensity.current
     LaunchedEffect(Unit) {
-        val scope = CoroutineScope(Dispatchers.Default)
         while (true) {
             withFrameNanos {
-                game.update(it) { garbageGameObjects ->
-                    scope.launch {
-                        delay(1000L)
-                        game.gameObjects.removeAll(garbageGameObjects)
-                    }
-                }
+                game.update(it)
             }
         }
     }
@@ -68,9 +60,8 @@ fun App(game: Game) {
                     when (it) {
                         is ShipData -> Ship(it)
                         is BulletData -> Bullet(it)
-                        is EnemyBulletData -> EnemyBullet(it) {
-                            BlastingBox(it.position.x.dp - it.size.dp, it.position.y.dp - it.size.dp)
-                        }
+                        is EnemyBulletData -> EnemyBullet(it)
+                        is BlastingBoxData -> BlastingBox(it)
                     }
                 }
             }

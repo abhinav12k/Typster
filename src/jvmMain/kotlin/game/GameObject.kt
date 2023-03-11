@@ -74,3 +74,5 @@ sealed class GameObject(speed: Double = 0.0, angle: Double = 0.0, position: Vect
         return this.position.distanceTo(other.position) < ((this.size + other.size) / 2)
     }
 }
+
+data class BlastingBoxData(override val size: Double, var isBlastShown: Boolean = false) : GameObject()

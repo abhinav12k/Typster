@@ -122,7 +122,7 @@ class Game {
         }
     }
 
-    fun update(time: Long, garbageObjects: (list: List<GameObject>) -> Unit) {
+    fun update(time: Long) {
         val delta = time - prevTime
         val floatDelta = (delta / 1e8).toFloat() //because time is in nano seconds
         prevTime = time
@@ -131,12 +131,15 @@ class Game {
 
         val enemyBullets = gameObjects.filterIsInstance<EnemyBulletData>()
         val bullets = gameObjects.filterIsInstance<BulletData>()
-
-        val enemyBulletsToBeRemoved = mutableListOf<EnemyBulletData>()
+        val blastDataRemovalList = gameObjects.filterIsInstance<BlastingBoxData>().filter { it.isBlastShown }
+        gameObjects.removeAll(blastDataRemovalList)
 
         enemyBullets.forEach { enemyBulletData ->
-            if (enemyBulletData.isWordFinished) {
-                enemyBulletsToBeRemoved.add(enemyBulletData)
+            if(enemyBulletData.isWordFinished) {
+                gameObjects.remove(enemyBulletData)
+                gameObjects.add(BlastingBoxData(80.0).apply {
+                    position = enemyBulletData.position
+                })
             } else {
                 bullets.firstOrNull { it.overlapsWith(enemyBulletData) }?.let {
                     //todo: introduce drag in enemy bullets
@@ -160,7 +163,6 @@ class Game {
         }
 
         updateStarData()
-        garbageObjects.invoke(enemyBulletsToBeRemoved)
     }
 
     private fun updateStarData() {

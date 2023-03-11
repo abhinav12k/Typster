@@ -16,34 +16,35 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import game.BlastingBoxData
+import utils.xOffset
+import utils.yOffset
 
 
 @Composable
-fun BlastingBox(xOffset: Dp, yOffset: Dp) {
+fun BlastingBox(blastingBoxData: BlastingBoxData) {
     val explosionProgress = remember { Animatable(0f) }
     LaunchedEffect(Unit) {
         explosionProgress.animateTo(
             targetValue = 1f,
             animationSpec = tween(durationMillis = 500)
         )
+        blastingBoxData.isBlastShown = true
     }
 
     val boxColor = Color.White.copy(.86f)
     val explosionColor = Color.Red.copy(.56f)
 
-    val boxSize = 80.dp
-
     Box(
         modifier = Modifier
-            .offset(xOffset, yOffset)
-            .size(boxSize)
+            .offset(blastingBoxData.xOffset, blastingBoxData.yOffset)
+            .size(blastingBoxData.size.dp)
             .clip(CircleShape)
             .background(boxColor.copy(alpha = 1 - explosionProgress.value)),
         contentAlignment = Alignment.Center
     ) {
-        val explosionSize = (boxSize * 2 * explosionProgress.value)
+        val explosionSize = (blastingBoxData.size.dp * 2 * explosionProgress.value)
         Canvas(modifier = Modifier.size(explosionSize)) {
             drawCircle(
                 color = explosionColor.copy(alpha = 1 - explosionProgress.value),
