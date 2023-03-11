@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.*
 import game.*
+import kotlinx.coroutines.*
 import ui.gameComponents.*
 import ui.menu.GameMenu
 import ui.theme.GameBackgroundColor
@@ -27,9 +28,15 @@ fun App(game: Game) {
 
     val density = LocalDensity.current
     LaunchedEffect(Unit) {
+        val scope = CoroutineScope(Dispatchers.Default)
         while (true) {
             withFrameNanos {
-                game.update(it)
+                game.update(it) { garbageGameObjects ->
+                    scope.launch {
+                        delay(1000L)
+                        game.gameObjects.removeAll(garbageGameObjects)
+                    }
+                }
             }
         }
     }

@@ -1,13 +1,13 @@
 package ui.gameComponents
 
-import androidx.compose.foundation.background
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.Card
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import game.EnemyBulletData
@@ -21,20 +21,29 @@ fun EnemyBullet(enemyBulletData: EnemyBulletData, isWordFinished: @Composable ()
     if (enemyBulletData.isWordFinished) {
         isWordFinished.invoke()
     } else {
-        Box(
-            Modifier
-                .offset(enemyBulletData.xOffset, enemyBulletData.yOffset)
-                .clip(CircleShape)
-                .background(backgroundColor),
-            contentAlignment = Alignment.Center
+        Card(
+            modifier = Modifier
+                .offset(enemyBulletData.xOffset, enemyBulletData.yOffset),
+            shape = CircleShape,
+            backgroundColor = backgroundColor,
+            border = if (enemyBulletData.isTypedCharacterMismatched) {
+                enemyBulletData.isTypedCharacterMismatched =
+                    false // making it false here so that it effect doesn't persist
+                BorderStroke(1.dp, Color.White)
+            } else {
+                BorderStroke(0.dp, backgroundColor)
+            }
         ) {
-            Spacer(Modifier.size(enemyBulletData.size.dp))
-            Text(
-                enemyBulletData.word,
-                color = textColor,
-                modifier = Modifier
-                    .padding(horizontal = 4.dp)
-            )
+            Box {
+                Spacer(Modifier.size(enemyBulletData.size.dp))
+                Text(
+                    enemyBulletData.word,
+                    color = textColor,
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .padding(horizontal = 4.dp)
+                )
+            }
         }
     }
 }

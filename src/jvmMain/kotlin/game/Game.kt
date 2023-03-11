@@ -122,7 +122,7 @@ class Game {
         }
     }
 
-    fun update(time: Long) {
+    fun update(time: Long, garbageObjects: (list: List<GameObject>) -> Unit) {
         val delta = time - prevTime
         val floatDelta = (delta / 1e8).toFloat() //because time is in nano seconds
         prevTime = time
@@ -132,28 +132,17 @@ class Game {
         val enemyBullets = gameObjects.filterIsInstance<EnemyBulletData>()
         val bullets = gameObjects.filterIsInstance<BulletData>()
 
+        val enemyBulletsToBeRemoved = mutableListOf<EnemyBulletData>()
+
         enemyBullets.forEach { enemyBulletData ->
             if (enemyBulletData.isWordFinished) {
-                gameObjects.remove(enemyBulletData)
+                enemyBulletsToBeRemoved.add(enemyBulletData)
             } else {
                 bullets.firstOrNull { it.overlapsWith(enemyBulletData) }?.let {
                     //todo: introduce drag in enemy bullets
 //                enemyBulletData.position -= Vector2(0.0,4.0)
 
                     gameObjects.remove(it)
-
-                    if (idxUnderValidation == currentTargetWord?.length) {
-                        AudioManager.play(EXPLOSION_SOUND_PATH, false)
-
-                        (currentTargetEnemyObject as? EnemyBulletData)?.isWordFinished = true
-
-                        gameObjects.removeAll(gameObjects.filterIsInstance<BulletData>())
-
-                        idxUnderValidation = 0
-                        currentTargetEnemyObject = null
-                        currentTargetWord = null
-                    }
-
                 }
             }
         }
@@ -171,6 +160,7 @@ class Game {
         }
 
         updateStarData()
+        garbageObjects.invoke(enemyBulletsToBeRemoved)
     }
 
     private fun updateStarData() {
@@ -198,7 +188,7 @@ class Game {
 
         if (currentTypedLetter.isNotEmpty()) {
             currentTargetEnemyObject = currentTargetEnemyObject ?: enemyBullets.firstOrNull {
-                it.word.first().lowercase() == currentTypedLetter.lowercase()
+                !it.isWordFinished && it.word.first().lowercase() == currentTypedLetter.lowercase()
             }?.apply {
                 currentTargetWord = word
                 isUnderAttack = true
@@ -218,6 +208,19 @@ class Game {
                     currentTargetWord?.substring(idxUnderValidation)?.let {
                         (currentTargetEnemyObject as? EnemyBulletData)?.word = it
                     }
+
+                    if (idxUnderValidation == currentTargetWord?.length) {
+                        AudioManager.play(EXPLOSION_SOUND_PATH, false)
+
+                        (currentTargetEnemyObject as? EnemyBulletData)?.isWordFinished = true
+
+                        gameObjects.removeAll(gameObjects.filterIsInstance<BulletData>())
+
+                        idxUnderValidation = 0
+                        currentTargetEnemyObject = null
+                        currentTargetWord = null
+                    }
+
                 } else {
                     (currentTargetEnemyObject as? EnemyBulletData)?.isTypedCharacterMismatched = true
                 }
