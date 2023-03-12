@@ -1,3 +1,7 @@
+/**
+ * @author abhinav12k
+ */
+
 package ui.gameComponents
 
 import androidx.compose.foundation.Canvas
