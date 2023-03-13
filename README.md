@@ -1,4 +1,6 @@
 # ⌨️ Typster
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/43e786b5d06b46e1a7a5762dba2df8c3)](https://www.codacy.com/gh/abhinav12k/Typster/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=abhinav12k/Typster&amp;utm_campaign=Badge_Grade)
+[![Hits](https://hits.sh/github.com/abhinav12k/Typster.svg)](https://hits.sh/github.com/abhinav12k/Typster/)
  
 <img src="preview/typster.png"/>
 
