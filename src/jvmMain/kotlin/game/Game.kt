@@ -38,6 +38,13 @@ class Game {
     private var idxUnderValidation = -1
 
     private var currentWordIdx = 0
+    private var numberOfCorrectKeyStrokes = 0
+    private var totalNumberOfKeyStrokes = 0
+    private var startTime: Long = 0
+    private var endTime: Long = 0
+    private var totalTimePaused: Long = 0
+    private var isPaused = false
+    private var pauseStartTime: Long = 0
 
     private val currentWord: String?
         get() {
@@ -58,6 +65,8 @@ class Game {
 
         AudioManager.stopBackgroundMusic()
         AudioManager.play()
+
+        startTime = System.currentTimeMillis()
     }
 
     private fun initGameVariables(wordsString: String?) {
@@ -105,21 +114,34 @@ class Game {
             GameState.PAUSED -> {
                 gameState = GameState.PAUSED
                 isGameMenuVisible = true
+
+                isPaused = true
+                pauseStartTime = System.currentTimeMillis()
             }
 
             GameState.RESUMED -> {
                 gameState = GameState.RESUMED
                 isGameMenuVisible = false
+
+                if (isPaused) {
+                    isPaused = false
+                    val pauseEndTime = System.currentTimeMillis()
+                    totalTimePaused += pauseEndTime - pauseStartTime
+                }
             }
 
             GameState.LOST -> {
                 gameState = GameState.LOST
                 isGameMenuVisible = true
+
+                endTime = System.currentTimeMillis()
             }
 
             GameState.WON -> {
                 gameState = GameState.WON
                 isGameMenuVisible = true
+
+                endTime = System.currentTimeMillis()
             }
 
             GameState.INITIALIZED -> {}
@@ -139,7 +161,7 @@ class Game {
         gameObjects.removeAll(blastDataRemovalList)
 
         enemyBullets.forEach { enemyBulletData ->
-            if(enemyBulletData.isWordFinished) {
+            if (enemyBulletData.isWordFinished) {
                 gameObjects.remove(enemyBulletData)
                 gameObjects.add(BlastingBoxData(80.0).apply {
                     position = enemyBulletData.position
@@ -190,6 +212,7 @@ class Game {
     }
 
     fun onKeyboardInput(currentTypedLetter: String) {
+        totalNumberOfKeyStrokes = totalNumberOfKeyStrokes.inc()
         val enemyBullets = gameObjects.filterIsInstance<EnemyBulletData>()
 
         if (currentTypedLetter.isNotEmpty()) {
@@ -206,6 +229,7 @@ class Game {
             }
             if (!currentTargetWord.isNullOrEmpty() && idxUnderValidation < (currentTargetWord?.length ?: 0)) {
                 if (currentTargetWord?.get(idxUnderValidation)?.lowercase() == currentTypedLetter.lowercase()) {
+                    numberOfCorrectKeyStrokes = numberOfCorrectKeyStrokes.inc()
                     idxUnderValidation = idxUnderValidation.inc()
 
                     AudioManager.play(FIRING_SOUND_PATH, false)
@@ -256,6 +280,25 @@ class Game {
     private fun winGame() {
         updateGameState(GameState.WON)
     }
+
+    fun calculateGameStats(): GameStats {
+
+        val totalTimeInMillis = endTime - startTime - totalTimePaused
+        val totalTimeInSeconds = totalTimeInMillis / 1000
+
+        val accuracy: Double = (numberOfCorrectKeyStrokes.toDouble() / totalNumberOfKeyStrokes) * 100
+        val wpm: Double = (totalNumberOfKeyStrokes / 5.0) / (totalTimeInSeconds / 60.0)
+        val errorRate: Double = ((totalNumberOfKeyStrokes - numberOfCorrectKeyStrokes).toDouble() / totalNumberOfKeyStrokes) * 100
+        val timeTakenInMinutes: Double = totalTimeInSeconds / 60.0
+
+        return GameStats(
+            "%.2f%%".format(accuracy),
+            "%.2f".format(wpm),
+            "%.2f%%".format(errorRate),
+            "%.2f minutes".format(timeTakenInMinutes)
+        )
+    }
+
 
     var width by mutableStateOf(0.dp)
     var height by mutableStateOf(0.dp)
