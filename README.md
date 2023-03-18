@@ -46,9 +46,8 @@ Give a ⭐️ if this project helped you!
 ## ☑️ TODO
 
 - [ ] Scoreboard
-- [ ] WPM and accuracy calculator
-- [ ] Switch difficulty levels
-- [ ] Drag in enemy bullets during collision
+- [x] WPM and accuracy calculator
+- [ ] Set difficulty levels
 - [ ] Typing mistakes sound and design
 - [ ] Other alphabets and numbers support
 
