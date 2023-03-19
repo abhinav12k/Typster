@@ -25,11 +25,10 @@ import ui.theme.MenuOptionBackgroundColor
 import ui.theme.MenuOptionBorderColor
 
 @Composable
-fun ColumnScope.HeroSection(game: Game, onCustomTextInputClicked: () -> Unit) {
+fun HeroSection(game: Game, onCustomTextInputClicked: () -> Unit) {
     Row(
         modifier = Modifier
-            .fillMaxSize()
-            .weight(1f),
+            .fillMaxWidth(),
         horizontalArrangement = Arrangement.Center
     ) {
         HeroSectionMenuButton(

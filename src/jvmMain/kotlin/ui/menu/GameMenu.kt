@@ -54,7 +54,9 @@ fun GameMenu(game: Game) {
         HeroSection(game) {
             isDialogOpen = true
         }
-        FooterSection()
+        Spacer(modifier = Modifier.fillMaxWidth().heightIn(24.dp))
+        FooterText(Modifier.align(Alignment.CenterHorizontally))
+        Spacer(modifier = Modifier.fillMaxWidth().heightIn(24.dp))
     }
 
     if (isDialogOpen) {

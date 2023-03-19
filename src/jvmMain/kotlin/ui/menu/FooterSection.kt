@@ -4,13 +4,8 @@
 
 package ui.menu
 
-import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -20,19 +15,14 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.unit.dp
 import utils.openInBrowser
 import java.net.URI
 
-@Composable
-fun ColumnScope.FooterSection() {
-    FooterText()
-    Spacer(modifier = Modifier.fillMaxWidth().heightIn(24.dp))
-}
-
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun ColumnScope.FooterText() {
+fun FooterText(
+    modifier: Modifier
+) {
 
     var isOptionActive by remember { mutableStateOf(false) }
 
@@ -67,8 +57,7 @@ fun ColumnScope.FooterText() {
                 openInBrowser(URI(annotation.item))
             }
         },
-        modifier = Modifier
-            .align(Alignment.CenterHorizontally)
+        modifier = modifier
             .onPointerEvent(PointerEventType.Enter) { isOptionActive = true }
             .onPointerEvent(PointerEventType.Exit) { isOptionActive = false }
     )
