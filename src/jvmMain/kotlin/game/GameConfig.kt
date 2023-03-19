@@ -27,11 +27,11 @@ class GameConfig {
     }
 
     fun increaseEnemyBulletSpeed() {
-        enemyBulletSpeed += 0.1
+        enemyBulletSpeed += 0.2
     }
 
     fun increaseStarSpeed() {
-        starSpeed += 0.1
+        starSpeed += 0.2
     }
 
     fun increaseLevel() {

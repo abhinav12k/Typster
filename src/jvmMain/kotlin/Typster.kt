@@ -90,29 +90,31 @@ fun main() = application {
     }
 
     MaterialTheme {
-        val trayState = rememberTrayState()
-        Tray(
-            state = trayState,
-            icon = trayIcon,
-            onAction = { windowVisible = true },
-            menu = {
-                Item(
-                    text = "Hide game window",
-                    onClick = { windowVisible = false }
-                )
-                Item(
-                    text = "Show game window",
-                    onClick = { windowVisible = true }
-                )
-                Item(
-                    text = "Exit",
-                    onClick = {
-                        AudioManager.stopBackgroundMusic()
-                        exitApplication()
-                    }
-                )
-            }
-        )
+        if (isTraySupported) {
+            val trayState = rememberTrayState()
+            Tray(
+                state = trayState,
+                icon = trayIcon,
+                onAction = { windowVisible = true },
+                menu = {
+                    Item(
+                        text = "Hide game window",
+                        onClick = { windowVisible = false }
+                    )
+                    Item(
+                        text = "Show game window",
+                        onClick = { windowVisible = true }
+                    )
+                    Item(
+                        text = "Exit",
+                        onClick = {
+                            AudioManager.stopBackgroundMusic()
+                            exitApplication()
+                        }
+                    )
+                }
+            )
+        }
 
         val windowState = rememberWindowState(
             position = WindowPosition.Aligned(Alignment.Center),
@@ -122,15 +124,23 @@ fun main() = application {
         Window(
             state = windowState,
             onCloseRequest = {
-                windowVisible = false
+                if (isTraySupported) {
+                    windowVisible = false
+                } else {
+                    exitApplication()
+                }
             },
             title = APP_NAME,
             visible = windowVisible,
             onKeyEvent = {
-                if (game.gameState == GameState.LOST || game.gameState == GameState.WON || game.gameState == GameState.PAUSED) {
+                if (game.gameState == GameState.LOST || game.gameState == GameState.WON) {
                     false
                 } else if (game.gameState != GameState.INITIALIZED && KeyboardHelper.isGamePauseTriggered(it)) {
-                    game.pauseGame()
+                    if(game.gameState == GameState.PAUSED) {
+                        game.resumeGame()
+                    } else {
+                        game.pauseGame()
+                    }
                     true
                 } else if (KeyboardHelper.isValidKeyboardInput(it)) {
                     game.onKeyboardInput(KeyboardHelper.getLetterFromKeyboardInput(it))

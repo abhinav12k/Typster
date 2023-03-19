@@ -258,9 +258,10 @@ class Game {
         }
 
         if (enemyBullets.size <= 2) {
-            addEnemyBullets(gameConfig.enemyBulletSpeed)
+            gameConfig.increaseLevel()
             gameConfig.increaseEnemyBulletSpeed()
             gameConfig.increaseStarSpeed()
+            addEnemyBullets(gameConfig.enemyBulletSpeed)
         }
     }
 
