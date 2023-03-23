@@ -1,13 +1,21 @@
 # ⌨️ Typster
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/43e786b5d06b46e1a7a5762dba2df8c3)](https://www.codacy.com/gh/abhinav12k/Typster/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=abhinav12k/Typster&amp;utm_campaign=Badge_Grade)
-[![Hits](https://hits.sh/github.com/abhinav12k/Typster.svg)](https://hits.sh/github.com/abhinav12k/Typster/)
+[![Kotlin](https://img.shields.io/badge/Kotlin-1.7.10-blue.svg?style=flat&logo=kotlin)](https://kotlinlang.org)
+[![Compose](https://img.shields.io/badge/Compose-1.2.0-red.svg?style=flat&logo=jetpack-compose)](https://developer.android.com/jetpack/compose/setup)
+[![Windows Setup](https://img.shields.io/badge/platform-windows-4D76CD)](https://github.com/abhinav12k/Typster/releases/download/v1.0.0/Typster-1.0.0.msi)
+[![Linux setup](https://img.shields.io/badge/platform-linux-orange)](https://github.com/abhinav12k/Typster/releases/download/v1.0.0/typster_1.0.0_amd64.deb)
+![Mac](https://img.shields.io/badge/platform-mac-pink)
+[![Youtube Demo](https://img.shields.io/badge/demo-youtube-EAEAEA)](https://youtu.be/GJDn7zIaAqk)
+
+[![Hits](https://hits.sh/github.com/abhinav12k/Typster.svg?color=d8fad8&labelColor=5d5c5c)](https://hits.sh/github.com/abhinav12k/Typster/)
+![GitHub all releases](https://img.shields.io/github/downloads/abhinav12k/Typster/total?color=%2300FF041)
  
 <img src="preview/typster.png"/>
 
 > Typster is a simple typing game built using Desktop Compose. The game allows you to test your typing skills by typing a given text as fast and accurately as possible. You can also customize the text to your liking.
 
 ## 📺 Preview
-[![Alt text](preview/banner_play.png)](https://youtu.be/GJDn7zIaAqk)
+https://user-images.githubusercontent.com/51455561/227321320-b66ebcbd-8856-4832-a78f-9f899e8ea246.mp4
 
 ## 🏃 Run
 - Clone the repo and run `./gradlew run`
@@ -16,7 +24,9 @@
 - Inspired by the Typing game of Phoboslab
 
 ## 🛠 Built With
-- [Kotlin](https://kotlinlang.org/) and [Desktop Compose](https://www.jetbrains.com/lp/compose-desktop/) - A declarative UI framework for building modern, responsive desktop applications using Kotlin.
+- [Kotlin](https://kotlinlang.org/) - A modern day concise and cross platform language
+- [Desktop Compose](https://www.jetbrains.com/lp/compose-desktop/) - A declarative UI framework for building modern, responsive desktop applications using Kotlin.
+- [OpenRndr Math](https://openrndr.org/) - Math functions and classes required for 2D plane simulation
 
 ## ✍️ Author
 
